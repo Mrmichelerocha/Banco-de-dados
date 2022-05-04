@@ -1,0 +1,55 @@
+drop table aluno;
+drop table Professor;
+drop table Disciplina;
+
+
+
+// 'N' alunos em 'N' disciplinas.
+// Atividade não foi desenvolvida em java por falta de tempo para configurar o ambiente Eclipse. 
+
+Exercicio 1
+
+create table Aluno 
+ (nome varchar(50),
+  idade integer,
+  cod_aluno integer,
+  turma varchar(50),
+  cod_disc integer);
+  
+create table Professor
+ (nome varchar(50),
+  idade integer,
+  cod_professor integer,
+  cod_disc integer);
+  
+create table Disciplina 
+ (nome varchar(50),
+  cod_disc integer);
+
+alter table Aluno add constraint pk_aluno primary key (cod_aluno);
+alter table Aluno add constraint fk_disciplina foreign key (cod_disc) references Disciplina (cod_disc);
+
+alter table Professor add constraint pk_professor primary key (cod_professor);
+alter table Professor add constraint fk_disciplina foreign key (cod_disc) references Disciplina (cod_disc);
+
+alter table Disciplina add constraint pk_disciplina primary key (cod_disc);
+
+insert into Aluno ("nome", "idade", "cod_aluno", "turma", "cod_disc") values ('Aluno 1', 20, 1, '1-A', 1);
+insert into Aluno ("nome", "idade", "cod_aluno", "turma", "cod_disc") values ('Aluno 2', 21, 2, '1-A', 1);
+insert into Aluno ("nome", "idade", "cod_aluno", "turma", "cod_disc") values ('Aluno 3', 22, 3, '1-B', 2);
+insert into Aluno ("nome", "idade", "cod_aluno", "turma", "cod_disc") values ('Aluno 4', 21, 4, '1-B', 3);
+
+insert into Disciplina ("nome", "cod_disc") values ('GA', 1);
+insert into Disciplina ("nome", "cod_disc") values ('AL', 2);
+insert into Disciplina ("nome", "cod_disc") values ('Calc', 3);
+
+insert into Professor ("nome", "idade", "cod_professor", "cod_disc") values ('Prof 1', 30, 10, 1);
+insert into Professor ("nome", "idade", "cod_professor", "cod_disc") values ('Prof 2', 52, 20, 1);
+insert into Professor ("nome", "idade", "cod_professor", "cod_disc") values ('Prof 3', 42, 30, 3);
+insert into Professor ("nome", "idade", "cod_professor", "cod_disc") values ('Prof 4', 28, 40, 2);
+
+Consulta 
+
+select distinct a.nome, p.nome
+from aluno as a, professor as p
+where a.cod_disc = 1;

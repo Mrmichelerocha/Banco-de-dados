@@ -1,0 +1,136 @@
+/*QUESTÃO 1*/
+
+CREATE TABLE cliente (
+cod_cliente integer PRIMARY KEY,
+nome varchar(50),
+cidade varchar(50),
+uf varchar(50),
+endereco varchar(50)
+)
+
+CREATE TABLE nota (
+num_nota integer PRIMARY KEY,
+data timestamp,
+num_parcela integer,
+cod_cliente integer,
+FOREIGN KEY(cod_cliente) REFERENCES cliente (cod_cliente)
+)
+
+CREATE TABLE nota_produto (
+num_nota integer,
+cod_produto integer,
+valor numeric,
+qtde integer,
+PRIMARY KEY(num_nota,cod_produto),
+FOREIGN KEY(num_nota) REFERENCES nota (num_nota)
+)
+
+CREATE TABLE venda (
+num_nota integer,
+data_vencto timestamp,
+data_pagto timestamp,
+multa_juro numeric,
+valor numeric,
+desconto numeric,
+PRIMARY KEY(num_nota,data_vencto),
+FOREIGN KEY(num_nota) REFERENCES nota (num_nota)
+)
+
+CREATE TABLE produto (
+cod_produto integer PRIMARY KEY,
+qtde_estoque integer,
+descricao varchar(50),
+valor numeric
+)
+
+ALTER TABLE nota_produto ADD FOREIGN KEY(cod_produto) REFERENCES produto (cod_produto)
+
+
+
+/*QUESTÃO 2*/
+
+delete from venda;
+delete from nota_produto;
+delete from nota;
+delete from produto;
+delete from cliente;
+commit;
+
+
+
+insert into cliente (cod_cliente, nome, cidade, uf, endereco) 
+	     values ('1', 'Cliente 1', 'Araranguá', '1976-10-5', 'aru');
+insert into cliente (cod_cliente, nome, cidade, uf, endereco) 
+	     values ('2', 'Cliente 2', 'Arroio do Silva', '1980-09-11', 'aru');
+insert into cliente (cod_cliente, nome, cidade, uf, endereco) 
+	     values ('3', 'Cliente 3', 'Araranguá', '1952-01-29', 'aru');
+
+insert into produto (cod_produto, qtde_estoque, descricao, valor) 
+values ('1','4','prod 1','50.00');
+insert into produto (cod_produto, qtde_estoque, descricao, valor) 
+values ('2','4','prod 2','90.00');
+insert into produto (cod_produto, qtde_estoque, descricao, valor) 
+values ('3','4','prod 3','50.00');
+insert into produto (cod_produto, qtde_estoque, descricao, valor) 
+values ('4','4','prod 4','30.00');
+
+insert into nota (num_nota, data, num_parcela, cod_cliente) 
+	  values ('001', '18/04/21', '1', '1');
+insert into nota (num_nota, data, num_parcela, cod_cliente) 
+	  values ('002', '18/04/21', '0', '2');
+insert into nota (num_nota, data, num_parcela, cod_cliente) 
+	  values ('003', '19/04/21', '3', '3');
+insert into nota (num_nota, data, num_parcela, cod_cliente) 
+	  values ('004', '19/04/21', '0', '1');
+
+insert into venda (num_nota, data_vencto, data_pagto, multa_juro, valor, desconto) 
+values ('001', '01/05/21', '11/05/21', '2', '100.00', NULL);
+insert into venda (num_nota, data_vencto, data_pagto, multa_juro, valor, desconto)
+values ('002', '01/05/21', '01/05/21', NULL,'80.00','8.00');
+insert into venda (num_nota, data_vencto, data_pagto, multa_juro, valor, desconto)
+values ('003', '02/05/21', '12/05/21', '4.00','200.00',NULL);
+insert into venda (num_nota, data_vencto, data_pagto, multa_juro, valor, desconto)
+values ('004', '02/05/21', '12/05/21', NULL,'30.00',NULL);
+
+
+
+
+/*QUESTÃO 3*/
+
+a)
+select cliente.cod_cliente, extract(month from data_vencto) as mes, 
+       extract(year from data_vencto) as ano, sum(valor) as soma
+  from venda, nota, cliente
+  where venda.num_nota = nota.num_nota and
+               nota.cod_cliente = cliente.cod_cliente
+group by cliente.cod_cliente , mes, ano
+order by ano, mes, cliente.cod_cliente;
+
+b) 
+select cliente.uf, sum(valor) as soma
+  from venda,nota, cliente
+  where venda.num_nota = nota.num_nota 
+  and nota.cod_cliente = cliente.cod_cliente
+group by cliente.uf 
+
+c)
+
+select produto.cod_produto, sum(nota_produto.valor) as total_gasto 
+from nota, produto, nota_produto
+where nota_produto.cod_produto = produto.cod_produto 
+and nota_produto.num_nota = nota.num_nota
+and nota.data <= '01/05/2021'
+group by produto.cod_produto order by total_gasto desc;
+
+d)
+select cliente.cod_cliente, cliente.nome, sum(valor) as soma
+  from venda, nota, cliente
+  where venda.num_nota = nota.num_nota 
+  and nota.cod_cliente = cliente.cod_cliente 
+  and data_pagto is null 
+  and data_vencto  between '01/04/2021' and '30/05/2021'
+group by cliente.cod_cliente, cliente.nome;
+
+
+https://www.w3schools.com/sql/sql_case.asp
+https://www.devmedia.com.br/sql-clausula-where/37645 

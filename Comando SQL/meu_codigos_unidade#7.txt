@@ -1,0 +1,51 @@
+/*QUESTÃO 1*/
+SQL Embutida
+
+SQL embutida acontece sempre que colocamos um código SQL dentro de uma linguagem 
+de programação, como o C, python ou o java. Praticamente, a linguagem fica 
+embutida dentro do programa, e ela é responsável por criar a SQL e enviar 
+para o banco de dados realizar seu trabalho.
+
+/*QUESTÃO 2*/
+
+a)
+CREATE TABLE CATEGORIA
+ (CODIGO INTEGER,
+ PERCENTUAL NUMERIC);
+	INSERT INTO CATEGORIA VALUES (1, 9.2);
+	INSERT INTO CATEGORIA VALUES (2, 7.6);
+	INSERT INTO CATEGORIA VALUES (3, 2.3);
+b)
+CREATE OR REPLACE FUNCTION AtualizaSalario ( codigo_emp INTEGER ) 
+RETURNS integer AS $$
+DECLARE 
+ codigoe INTEGER;
+ salarioe NUMERIC;
+ ctr INTEGER=0; 
+ 
+ c1 CURSOR FOR SELECT codigo, salario FROM empregado;
+BEGIN
+ OPEN c1;
+ LOOP
+ FETCH c1 INTO codigoe, salarioe;
+ ctr := ctr + 1;
+ EXIT WHEN ctr > 5;
+ salarioe := salarioe * (1 + (percentual / 100));
+
+UPDATE empregado
+ SET salario = salarioe
+ WHERE codigo = codigoe;
+ 
+ END LOOP;
+ CLOSE c1;
+ RETURN 1;
+END;
+$$ LANGUAGE plpgsql;
+
+c)
+d)
+
+
+
+/*QUESTÃO 3*/
+

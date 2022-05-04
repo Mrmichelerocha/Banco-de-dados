@@ -1,0 +1,153 @@
+/**/
+/* QUESTÃO 1 */
+create view exercicio_1_uni5b as
+select produto.* from produto,
+ (select max(qtde_total) as qtde_total
+ from 
+  (select np.cod_produto, sum(np.qtde) as qtde_total
+ from nota_produto np, nota nt
+ where np.num_nota = nt.num_nota 
+ and nt.data between '2020-10-01' and '2020-12-31'
+ group by np.cod_produto) 
+  as prod_sum_in) as prod_max,
+ (select np.cod_produto, sum(np.qtde) as qtde_total
+ from nota_produto np, nota nt
+ where np.num_nota = nt.num_nota and
+ nt.data between '2020-10-01' and '2020-12-31'
+ group by np.cod_produto) as prod_sum
+where produto.cod_produto = prod_sum.cod_produto and
+ prod_sum.qtde_total = prod_max.qtde_total;
+
+select * from exercicio_1_uni5b;
+
+select * from pg_views
+ where viewname = 'exercicio_1_uni5b';
+
+/* QUESTÃO 2 */
+
+CREATE TABLE livro (
+isbn integer PRIMARY KEY,
+titulo varchar(50),
+editora varchar(50)
+);
+
+CREATE TABLE exemplar (
+cod_exemplar integer PRIMARY KEY,
+isbn integer,
+FOREIGN KEY(isbn) REFERENCES livro (isbn)
+);
+
+CREATE TABLE associado (
+cod_associado integer PRIMARY KEY,
+endereco varchar(50),
+nome varchar(50)
+);
+
+CREATE TABLE palavra_chave (
+cod_pvl_chave integer PRIMARY KEY,
+descricao varchar(50)
+);
+
+CREATE TABLE autor (
+cod_autor integer PRIMARY KEY,
+nome varchar(50)
+);
+
+CREATE TABLE coautor (
+isbn integer,
+cod_autor integer,
+FOREIGN KEY(isbn) REFERENCES livro (isbn),
+FOREIGN KEY(cod_autor) REFERENCES autor (cod_autor)
+);
+
+CREATE TABLE emprestimo (
+data_emprestimo timestamp PRIMARY KEY,
+data_devolucao timestamp,
+cod_exemplar integer,
+cod_associado integer,
+FOREIGN KEY(cod_exemplar) REFERENCES exemplar (cod_exemplar),
+FOREIGN KEY(cod_associado) REFERENCES associado (cod_associado)
+);
+
+CREATE TABLE plv_chave_livro (
+cod_pvl_chave integer,
+isbn integer,
+FOREIGN KEY(cod_pvl_chave) REFERENCES palavra_chave (cod_pvl_chave),
+FOREIGN KEY(isbn) REFERENCES livro (isbn)
+);
+
+
+a)
+
+select v.titulo, e.cod_associado, e.data_emprestimo, e.data_devolucao
+from livro v, emprestimo e
+where e.data_emprestimo between '01/03/2021' and '01/04/2021'
+order by e.data_emprestimo desc;
+
+b)
+
+select v.titulo 
+from livro as v
+where v.titulo = 'banco de dados'
+
+
+/* QUESTÃO 3 */
+drop table coautor;
+drop table plv_chave_livro;
+drop table emprestimo;
+drop table exemplar;
+drop table associado;
+drop table autor;
+drop table livro;
+drop table palavra_chave;
+
+
+CREATE TABLE fornecedor (
+cod_fornecedor integer PRIMARY KEY,
+nome varchar(50)
+);
+
+CREATE TABLE produto (
+cod_descricao integer PRIMARY KEY,
+descricao varchar(50)
+);
+
+CREATE TABLE fornecedor_produto (
+cod_fornecedor integer,
+cod_produto integer,
+valor int,
+PRIMARY KEY(cod_fornecedor,cod_produto),
+FOREIGN KEY(cod_fornecedor) REFERENCES fornecedor (cod_fornecedor),
+FOREIGN KEY(cod_produto) REFERENCES produto (cod_descricao)
+);
+
+
+insert into fornecedor values (1,'michele');
+insert into produto values (01, 'produo#1');
+insert into fornecedor_produto values (1, 001, 100);
+
+insert into fornecedor values (2,'edson');
+insert into produto values (02, 'produo#2');
+insert into fornecedor_produto values (2, 002, 50);
+
+insert into fornecedor values (3,'jenny');
+insert into produto values (03, 'produo#3');
+insert into fornecedor_produto values (3, 003, 200);
+
+
+select f.nome, fp.valor, p.descricao, sum(fp.valor) as SOMA
+from fornecedor f, fornecedor_produto fp, produto p
+where f.cod_fornecedor = fp.cod_fornecedor and fp.cod_produto = p.cod_descricao
+and fp.valor >= 100 
+group by fp.valor, f.nome, p.descricao
+
+/*tentei fazer assim mas não deu*/
+select f.nome, count(fp.valor) as QDTE
+from fornecedor as f
+inner join fornecedor_produto as fp 
+  on f.cod_fornecedor = fp.cod_fornecedor 
+group by f.nome
+having count (fp.valor) > 
+  (select count (distinct fp.valor)/ count(distinct f.cod_fornecedor) from fornecedor);
+
+

@@ -1,0 +1,73 @@
+/*QUESTÃO 1*/
+
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+public class DemoDB {
+	private Connection conn = null;
+
+	private boolean getConnection(String driver, String url, String user, String password) {
+		try {
+			Class.forName(driver);
+			conn = DriverManager.getConnection(url, user, password);
+		} catch (SQLException exc) {
+			exc.printStackTrace();
+			return false;
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+			return false;
+		}
+		return true;
+	}
+
+	private void close() {
+		 try {
+			 if (conn != null) conn.close();
+		 } catch (SQLException e) {
+			 e.printStackTrace();
+		 }
+	}
+	
+
+	private void insertFornecedor(int cod_fornecedor, String nome)
+	throws SQLException {
+		PreparedStatement stt = null;
+		try {
+			stt = conn.prepareStatement("insert into (fornecedor,"+"nome) values (?,?)");
+			stt.setInt(1, cod_fornecedor);
+			stt.setString(2, nome);
+			stt.executeUpdate(nome);
+		} finally {
+			if (stt != null) stt.close();
+		}
+		
+	}
+	
+	public static void main(String[] args) {
+		String driver = "org.postgresql.Driver";
+		String url = "jdbc:postgresql://localhost:5432/postgres";
+		String user = "postgres";
+		String password = "lonely09";
+		
+		boolean connected = false;
+		
+		DemoDB ec = new DemoDB();
+		
+		connected = ec.getConnection(driver, url, user, password);
+		
+		if (connected) {
+			System.out.println("Conexão realizada com sucesso");
+			try {
+				ec.insertFornecedor(1, "fornecedor 1");
+				ec.insertFornecedor(2, "fornecedor 2");
+				
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+			ec.close();
+		} else
+			System.out.println("Não foi possível " + " estabelecer a conexão com o banco de dados");
+		}
+}

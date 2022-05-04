@@ -1,0 +1,71 @@
+create table Autor
+	(cod_Autor integer,
+ 	 cod_ISBN integer,
+	 nome_Autor varchar(50));
+	 
+create table Livro
+	(cod_ISBN integer,
+	 Titulo varchar(50),
+	 Editora varchar(50),
+	 Plv_Chv varchar(50));
+
+create table Exemplares
+	(cod_Ex integer);
+
+create table Associado
+	(cod_Assoc integer,
+	 Endereço varchar(50),
+	 nome_Assoc varchar(50));
+
+create table Acervo
+	(Dt_Emp date,
+	 Dt_Ent date,
+	 cod_Ex integer,
+	 cod_Assoc integer);
+	 
+alter table Autor add constraint pk_autor primary key (cod_Autor);
+alter table Autor add constraint fk_livro foreign key (cod_ISBN) references Livro (cod_ISBN);
+
+alter table Livro add constraint pk_livro primary key (cod_ISBN);
+
+alter table Exemplares add constraint pk_exemplar primary key (cod_Ex);
+
+alter table Associado add constraint pk_associado primary key (cod_Assoc);
+
+alter table Acervo add constraint pk_acervo primary key (Dt_Emp);
+alter table Acervo add constraint fk_exemplar foreign key (cod_Ex) references Exemplares (cod_Ex);
+alter table Acervo add constraint fk_associado foreign key (cod_Assoc) references Associado (cod_Assoc);
+
+=======================================================================================================
+
+insert into Autor (cod_Autor, Nome_Autor, cod_ISBN) values (1, 'Autor 1', 1001);
+insert into Autor (cod_Autor, Nome_Autor, cod_ISBN) values (2, 'Autor 1', 1002);
+insert into Autor (cod_Autor, Nome_Autor, cod_ISBN) values (3, 'Autor 2', 1003);
+
+insert into Livro (Cod_ISBN, Titulo, Editora, Plv_Chv) values (1001, 'Titulo 1', 'Editora 1', 'Plv 1');
+insert into Livro (Cod_ISBN, Titulo, Editora, Plv_Chv) values (1002, 'Titulo 2', 'Editora 1', 'Plv 1');
+insert into Livro (Cod_ISBN, Titulo, Editora, Plv_Chv) values (1003, 'Titulo 3', 'Editora 2', 'Plv 2');
+
+insert into Exemplares (Cod_Ex) values (10011);
+insert into Exemplares (Cod_Ex) values (10021);
+insert into Exemplares (Cod_Ex) values (10031);
+
+insert into Associado (Cod_Assoc, Endereço, Nome_Assoc) values (10, 'Florianopolis', 'Associado 1');
+insert into Associado (Cod_Assoc, Endereço, Nome_Assoc) values (11, 'Ararangua', 'Associado 2');
+insert into Associado (Cod_Assoc, Endereço, Nome_Assoc) values (12, 'Ararangua', 'Associado 3');
+
+insert into Acervo (Dt_Emp, Dt_Ent, Cod_Ex, Cod_Assoc) values ('04-01-2021', '04-01-2021', 10011, 10);
+insert into Acervo (Dt_Emp, Dt_Ent, Cod_Ex, Cod_Assoc) values ('03-01-2021', '03-30-2021', 10031, 10);
+insert into Acervo (Dt_Emp, Dt_Ent, Cod_Ex, Cod_Assoc) values ('02-04-2021', '03-20-2021', 10021, 12);
+
+=======================================================================================================
+
+//pesquisar quais os codigos dos livros que um autor especifico escreveu 
+select distinct nome_autor, autor.titulo
+from autor, livro
+where nome_autor = 'Autor 1'
+
+//pesquisa quais os acervos feitos antes ou no mesmo dia que '03-01-2021'
+select distinct acervo.dt_emp, acervo.cod_assoc
+from acervo, associado
+where dt_emp <= '03-01-2021' 
